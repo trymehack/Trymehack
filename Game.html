@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>Hill Drive - Suhail Tanweer Tapadar</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    font-family:Arial,Helvetica,sans-serif;
+    background:#07101d;
+    color:white;
+}
+
+button{
+    font-family:inherit;
+}
+
+/* =====================================================
+   GAME
+===================================================== */
+
+#game{
+    position:relative;
+    width:100vw;
+    height:100vh;
+    overflow:hidden;
+    background:linear-gradient(#6fc9ff,#dff5ff 55%,#b9df9d);
+}
+
+canvas{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+}
+
+/* =====================================================
+   TOP HUD
+===================================================== */
+
+#hud{
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    padding:12px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    pointer-events:none;
+    z-index:10;
+}
+
+.hud-left,
+.hud-right{
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+}
+
+.hud-box{
+    background:rgba(5,13,29,.82);
+    border:1px solid rgba(255,255,255,.2);
+    border-radius:10px;
+    padding:7px 12px;
+    font-weight:bold;
+    box-shadow:0 4px 15px rgba(0,0,0,.2);
+}
+
+#fuelBox{
+    width:150px;
+}
+
+.fuel-title{
+    font-size:12px;
+    color:#dcecff;
+}
+
+#fuelBar{
+    width:100%;
+    height:10px;
+    background:#283449;
+    border-radius:20px;
+    overflow:hidden;
+    margin-top:4px;
+}
+
+#fuelFill{
+    width:100%;
+    height:100%;
+    background:#45e56c;
+    transition:.2s;
+}
+
+/* =====================================================
+   MENU BUTTON
+===================================================== */
+
+#menuButton{
+    position:absolute;
+    top:12px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:20;
+
+    padding:8px 14px;
+    border:1px solid rgba(255,255,255,.3);
+    border-radius:9px;
+    background:rgba(5,13,29,.82);
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+/* =====================================================
+   TOUCH CONTROLS
+===================================================== */
+
+#controls{
+    position:absolute;
+    bottom:20px;
+    left:0;
+    width:100%;
+    display:flex;
+    justify-content:space-between;
+    padding:0 22px;
+    z-index:15;
+    pointer-events:none;
+}
+
+.control-group{
+    display:flex;
+    gap:14px;
+}
+
+.control{
+    width:75px;
+    height:75px;
+    border-radius:50%;
+    border:2px solid rgba(255,255,255,.5);
+    background:rgba(5,13,29,.7);
+    color:white;
+    font-size:30px;
+    font-weight:bold;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    user-select:none;
+    -webkit-user-select:none;
+    touch-action:none;
+    pointer-events:auto;
+}
+
+.control:active{
+    transform:scale(.92);
+    background:#55c9ff;
+    color:#06101c;
+}
+
+/* =====================================================
+   SCREENS
+===================================================== */
+
+.screen{
+    position:absolute;
+    inset:0;
+    z-index:30;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+    background:rgba(3,9,21,.75);
+}
+
+.panel{
+    width:100%;
+    max-width:480px;
+    max-height:90vh;
+    overflow:auto;
+
+    background:#0b1830;
+    border:1px solid #29466f;
+    border-radius:20px;
+    padding:25px;
+
+    box-shadow:0 20px 70px rgba(0,0,0,.55);
+}
+
+.panel h1,
+.panel h2{
+    text-align:center;
+    color:#55c9ff;
+    margin-bottom:18px;
+}
+
+.panel p{
+    color:#b9c9e8;
+    text-align:center;
+    margin-bottom:15px;
+}
+
+/* =====================================================
+   MENU
+===================================================== */
+
+.menu-buttons{
+    display:grid;
+    gap:12px;
+}
+
+.menu-btn{
+    width:100%;
+    padding:14px;
+    border:1px solid #3d638e;
+    border-radius:10px;
+    background:#102542;
+    color:white;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.menu-btn:hover{
+    background:#55c9ff;
+    color:#06101c;
+}
+
+/* =====================================================
+   GARAGE
+===================================================== */
+
+.vehicle-preview{
+    height:150px;
+    border-radius:15px;
+    background:linear-gradient(#75cfff,#dff7ff 60%,#8bc76d);
+    position:relative;
+    overflow:hidden;
+    margin-bottom:18px;
+}
+
+.preview-car{
+    position:absolute;
+    left:50%;
+    bottom:35px;
+    transform:translateX(-50%);
+    font-size:75px;
+}
+
+.vehicle-name{
+    text-align:center;
+    font-size:23px;
+    font-weight:bold;
+    margin-bottom:14px;
+}
+
+.vehicle-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+}
+
+.vehicle-card{
+    background:#102542;
+    border:1px solid #29466f;
+    border-radius:12px;
+    padding:12px;
+    text-align:center;
+    cursor:pointer;
+}
+
+.vehicle-card.selected{
+    border-color:#55c9ff;
+    box-shadow:0 0 15px rgba(85,201,255,.25);
+}
+
+.vehicle-icon{
+    font-size:40px;
+}
+
+.vehicle-card small{
+    color:#9fb2d3;
+}
+
+.stats{
+    margin-top:18px;
+}
+
+.stat{
+    margin-bottom:10px;
+}
+
+.stat-row{
+    display:flex;
+    justify-content:space-between;
+    font-size:13px;
+    color:#c4d2e9;
+}
+
+.stat-bar{
+    width:100%;
+    height:9px;
+    background:#202f46;
+    border-radius:20px;
+    overflow:hidden;
+}
+
+.stat-fill{
+    height:100%;
+    background:#55c9ff;
+}
+
+/* =====================================================
+   UPGRADES
+===================================================== */
+
+.upgrade{
+    background:#102542;
+    border:1px solid #29466f;
+    border-radius:12px;
+    padding:15px;
+    margin-bottom:12px;
+}
+
+.upgrade-title{
+    display:flex;
+    justify-content:space-between;
+    font-weight:bold;
+}
+
+.upgrade p{
+    text-align:left;
+    font-size:13px;
+    margin:5px 0 10px;
+}
+
+.upgrade button{
+    width:100%;
+    padding:10px;
+    border:0;
+    border-radius:8px;
+    background:#55c9ff;
+    color:#06101c;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+/* =====================================================
+   SKINS
+===================================================== */
+
+.skin-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+}
+
+.skin{
+    height:65px;
+    border-radius:10px;
+    border:2px solid transparent;
+    cursor:pointer;
+}
+
+.skin.selected{
+    border-color:white;
+}
+
+/* =====================================================
+   GAME OVER
+===================================================== */
+
+.game-over-stat{
+    background:#102542;
+    border-radius:10px;
+    padding:12px;
+    margin:8px 0;
+    display:flex;
+    justify-content:space-between;
+}
+
+/* =====================================================
+   HIDDEN
+===================================================== */
+
+.hidden{
+    display:none !important;
+}
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(max-width:600px){
+
+    .control{
+        width:68px;
+        height:68px;
+    }
+
+    #fuelBox{
+        width:130px;
+    }
+
+    .hud-box{
+        padding:6px 9px;
+        font-size:13px;
+    }
+
+    .panel{
+        padding:20px;
+    }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<div id="game">
+
+<canvas id="canvas"></canvas>
+
+
+<!-- =====================================================
+     HUD
+===================================================== -->
+
+<div id="hud">
+
+    <div class="hud-left">
+
+        <div class="hud-box">
+            🪙 <span id="coins">0</span>
+        </div>
+
+        <div class="hud-box">
+            💎 <span id="gems">0</span>
+        </div>
+
+        <div class="hud-box">
+            📏 <span id="distance">0</span> m
+        </div>
+
+    </div>
+
+
+    <div class="hud-right">
